@@ -1,8 +1,10 @@
 use types3d::*;
 
+use crate::IndexFromCoord3D;
+
 //  //  //  //  //  //  //  //
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct GridCalculator {
+pub struct LightGrid {
     pub i_max: usize,
     pub j_max: usize,
     pub k_max: usize,
@@ -10,7 +12,7 @@ pub struct GridCalculator {
     pub size: usize,
 }
 
-impl GridCalculator {
+impl LightGrid {
     pub fn new(i_max: usize, j_max: usize, k_max: usize) -> Self {
         let ij_max = i_max * j_max;
         Self {
@@ -23,9 +25,8 @@ impl GridCalculator {
     }
 }
 
-//  //  //  //  //  //  //  //
-impl GridCalculator {
-    pub fn coord_to_index(&self, coord: &IJK) -> Option<usize> {
+impl IndexFromCoord3D for LightGrid {
+    fn index_from(&self, coord: &IJK) -> Option<usize> {
         let IJK { i, j, k } = *coord;
         if i >= self.i_max {
             return None;
@@ -40,7 +41,10 @@ impl GridCalculator {
         let result = i + (j + k * self.j_max) * self.i_max;
         Some(result)
     }
+}
 
+//  //  //  //  //  //  //  //
+impl LightGrid {
     pub fn index_to_coord(&self, index: usize) -> Option<IJK> {
         if index >= self.size {
             return None;
@@ -65,13 +69,13 @@ mod ijk_to_index {
         let i_max = 3;
         let j_max = 5;
         let k_max = 7;
-        let grid = GridCalculator::new(i_max, j_max, k_max);
+        let grid = LightGrid::new(i_max, j_max, k_max);
         let mut index = 0;
         for k in 0..k_max {
             for j in 0..j_max {
                 for i in 0..i_max {
                     let coords = IJK { i, j, k };
-                    let try_index = grid.coord_to_index(&coords);
+                    let try_index = grid.index_from(&coords);
                     assert!(try_index != None, "get None for {:?}", coords);
                     assert!(
                         try_index.unwrap() == index,
@@ -101,9 +105,9 @@ mod ijk_to_index {
     fn i_only() {
         for v_max in 0..5 {
             for v in 0..v_max {
-                let grid = GridCalculator::new(v_max, 1, 1);
+                let grid = LightGrid::new(v_max, 1, 1);
                 let coords = IJK { i: v, j: 0, k: 0 };
-                let index = grid.coord_to_index(&coords);
+                let index = grid.index_from(&coords);
                 assert!(index != None, "get None for v_max={}, v={}", v_max, v);
                 assert!(
                     index.unwrap() == v,
@@ -135,9 +139,9 @@ mod ijk_to_index {
     fn j_only() {
         for v_max in 0..5 {
             for v in 0..v_max {
-                let grid = GridCalculator::new(1, v_max, 1);
+                let grid = LightGrid::new(1, v_max, 1);
                 let coords = IJK { i: 0, j: v, k: 0 };
-                let index = grid.coord_to_index(&coords);
+                let index = grid.index_from(&coords);
                 assert!(index != None, "get None for v_max={}, v={}", v_max, v);
                 assert!(index.unwrap() == v);
 
@@ -163,9 +167,9 @@ mod ijk_to_index {
     fn k_only() {
         for v_max in 0..5 {
             for v in 0..v_max {
-                let grid = GridCalculator::new(1, 1, v_max);
+                let grid = LightGrid::new(1, 1, v_max);
                 let coords = IJK { i: 0, j: 0, k: v };
-                let index = grid.coord_to_index(&coords);
+                let index = grid.index_from(&coords);
                 assert!(index != None, "get None for v_max={}, v={}", v_max, v);
                 assert!(index.unwrap() == v);
 
@@ -190,20 +194,20 @@ mod ijk_to_index {
 
     #[test]
     fn k_bounds_error() {
-        let grid = GridCalculator::new(1, 1, 1);
+        let grid = LightGrid::new(1, 1, 1);
         let coords = IJK { i: 0, j: 0, k: 1 };
-        assert!(grid.coord_to_index(&coords) == None);
+        assert!(grid.index_from(&coords) == None);
     }
     #[test]
     fn j_bounds_error() {
-        let grid = GridCalculator::new(1, 1, 1);
+        let grid = LightGrid::new(1, 1, 1);
         let coords = IJK { i: 0, j: 1, k: 0 };
-        assert!(grid.coord_to_index(&coords) == None);
+        assert!(grid.index_from(&coords) == None);
     }
     #[test]
     fn i_bounds_error() {
-        let grid = GridCalculator::new(1, 1, 1);
+        let grid = LightGrid::new(1, 1, 1);
         let coords = IJK { i: 1, j: 0, k: 0 };
-        assert!(grid.coord_to_index(&coords) == None);
+        assert!(grid.index_from(&coords) == None);
     }
 }

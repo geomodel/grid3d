@@ -1,10 +1,11 @@
 use types3d::*;
 
-use crate::GridCalculator;
+use crate::IndexFromCoord3D;
+use crate::LightGrid;
 
 //  //  //  //  //  //  //  //
 #[derive(Debug, PartialEq)]
-pub struct FastCoordGrid {
+pub struct FastGrid {
     pub i_max: usize,
     pub j_max: usize,
     pub k_max: usize,
@@ -13,20 +14,20 @@ pub struct FastCoordGrid {
     k_cash: Box<[usize]>,
 }
 
-impl FastCoordGrid {
+impl FastGrid {
     pub fn new_rc(i_max: usize, j_max: usize, k_max: usize) -> std::rc::Rc<Self> {
         std::rc::Rc::new(Self::new(i_max, j_max, k_max))
     }
     pub fn new(i_max: usize, j_max: usize, k_max: usize) -> Self {
-        let grid_calculator = GridCalculator::new(i_max, j_max, k_max);
+        let grid_calculator = LightGrid::new(i_max, j_max, k_max);
 
         grid_calculator.into()
     }
 }
 
-impl From<GridCalculator> for FastCoordGrid {
-    fn from(src: GridCalculator) -> Self {
-        let GridCalculator {
+impl From<LightGrid> for FastGrid {
+    fn from(src: LightGrid) -> Self {
+        let LightGrid {
             i_max,
             j_max,
             k_max,
@@ -46,9 +47,8 @@ impl From<GridCalculator> for FastCoordGrid {
     }
 }
 
-//  //  //  //  //  //  //  //
-impl FastCoordGrid {
-    pub fn index_from(&self, coord: &IJK) -> Option<usize> {
+impl IndexFromCoord3D for FastGrid {
+    fn index_from(&self, coord: &IJK) -> Option<usize> {
         let IJK { i, j, k } = *coord;
         if i >= self.i_max {
             return None;
@@ -67,7 +67,7 @@ impl FastCoordGrid {
 
 //let result = i + (j + k * self.j_max) * self.i_max;
 //  //  //  //  //  //  //  //
-fn create_j_cash(src: &GridCalculator) -> Box<[usize]> {
+fn create_j_cash(src: &LightGrid) -> Box<[usize]> {
     let mut cash = Vec::<usize>::with_capacity(src.j_max);
 
     for j in 0..src.j_max {
@@ -77,7 +77,7 @@ fn create_j_cash(src: &GridCalculator) -> Box<[usize]> {
     cash.into_boxed_slice()
 }
 
-fn create_k_cash(src: &GridCalculator) -> Box<[usize]> {
+fn create_k_cash(src: &LightGrid) -> Box<[usize]> {
     let mut cash = Vec::<usize>::with_capacity(src.k_max);
 
     for k in 0..src.k_max {
@@ -96,14 +96,14 @@ mod fast_coord_grid {
 
     #[test]
     fn index_comparation() {
-        let c_grid = GridCalculator::new(13, 57, 29);
-        let f_grid = FastCoordGrid::from(c_grid.clone());
+        let c_grid = LightGrid::new(13, 57, 29);
+        let f_grid = FastGrid::from(c_grid.clone());
 
         for i in 0..f_grid.i_max {
             for j in 0..f_grid.j_max {
                 for k in 0..f_grid.k_max {
                     let coord = IJK { i, j, k };
-                    assert!(c_grid.coord_to_index(&coord) == f_grid.index_from(&coord));
+                    assert!(c_grid.index_from(&coord) == f_grid.index_from(&coord));
                     //
                 }
             }
@@ -113,7 +113,7 @@ mod fast_coord_grid {
             for j in 0..c_grid.j_max {
                 for k in 0..c_grid.k_max {
                     let coord = IJK { i, j, k };
-                    assert!(c_grid.coord_to_index(&coord) == f_grid.index_from(&coord));
+                    assert!(c_grid.index_from(&coord) == f_grid.index_from(&coord));
                     //
                 }
             }
@@ -122,8 +122,8 @@ mod fast_coord_grid {
 
     #[test]
     fn create_from() {
-        let c_grid = GridCalculator::new(3, 5, 7);
-        let f_grid = FastCoordGrid::from(c_grid.clone());
+        let c_grid = LightGrid::new(3, 5, 7);
+        let f_grid = FastGrid::from(c_grid.clone());
 
         assert!(f_grid.i_max == c_grid.i_max);
         assert!(f_grid.j_max == c_grid.j_max);
@@ -132,7 +132,7 @@ mod fast_coord_grid {
     }
     #[test]
     fn internal_limits() {
-        let grid = FastCoordGrid::new(3, 5, 7);
+        let grid = FastGrid::new(3, 5, 7);
 
         assert!(grid.j_max == grid.j_cash.len());
         assert!(grid.k_max == grid.k_cash.len());
