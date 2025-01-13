@@ -1,14 +1,7 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+mod grid_calculator;
+mod fast_coord_grid;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+//  //  //  //  //  //  //  //
+//pub use io3d::types3d;
+pub use grid_calculator::*;
