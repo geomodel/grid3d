@@ -5,11 +5,11 @@ use crate::IndexFromCoord3D;
 //  //  //  //  //  //  //  //
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct LightGrid {
-    pub i_max: usize,
-    pub j_max: usize,
-    pub k_max: usize,
-    pub ij_max: usize,
-    pub size: usize,
+    pub(crate) i_max: usize,
+    pub(crate) j_max: usize,
+    pub(crate) k_max: usize,
+    pub(crate) ij_max: usize,
+    pub(crate) size: usize,
 }
 
 impl LightGrid {
@@ -40,6 +40,19 @@ impl IndexFromCoord3D for LightGrid {
 
         let result = i + (j + k * self.j_max) * self.i_max;
         Some(result)
+    }
+
+    fn size(&self) -> usize {
+        self.size
+    }
+    fn i_max(&self) -> usize {
+        self.i_max
+    }
+    fn j_max(&self) -> usize {
+        self.j_max
+    }
+    fn k_max(&self) -> usize {
+        self.k_max
     }
 }
 
