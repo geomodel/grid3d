@@ -4,8 +4,8 @@ mod fast_grid;
 
 //  //  //  //  //  //  //  //
 pub use types3d;
-pub use light_grid::*;
-pub use fast_grid::*;
+pub use light_grid::LightGrid;
+pub use fast_grid::FastGrid;
 
 pub trait IndexFromCoord3D {
     fn size(&self) -> usize;
