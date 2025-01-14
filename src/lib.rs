@@ -1,11 +1,11 @@
 
 mod light_grid;
-mod fast_grid;
+mod cached_grid;
 
 //  //  //  //  //  //  //  //
 pub use types3d;
 pub use light_grid::LightGrid;
-pub use fast_grid::FastGrid;
+pub use cached_grid::CachedGrid;
 
 pub trait IndexFromCoord3D {
     fn size(&self) -> usize;

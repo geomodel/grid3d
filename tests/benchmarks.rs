@@ -4,8 +4,8 @@ use std::time::Instant;
 use grid3d::*;
 
 const IM: usize = 333;
-const JM: usize = 777;
-const KM: usize = 99;
+const JM: usize = 222;
+const KM: usize = 77;
 
 const TM: usize = 5;
 
@@ -14,7 +14,7 @@ const TM: usize = 5;
 fn bench_fast_grid() {
     let start = Instant::now();
 
-    let grid = FastGrid::new_rc(IM, JM, KM);
+    let grid = CachedGrid::new_rc(IM, JM, KM);
     workload(grid.clone());
 
     println!("Elapsed time: {:.2?}", start.elapsed());
